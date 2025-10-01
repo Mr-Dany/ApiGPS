@@ -19,8 +19,21 @@ else
 builder.Services.AddSingleton<TextStorageService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+// CORS abierto (en prod, restringe dominios específicos)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .SetPreflightMaxAge(TimeSpan.FromHours(1)));
+});
+
 
 var app = builder.Build();
+app.UseCors("AllowAll");
+
 
 app.UseSwagger();
 app.UseSwaggerUI();
@@ -28,6 +41,7 @@ app.UseSwaggerUI();
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
 app.MapGet("/", () => Results.Redirect("/swagger", permanent: false));
+app.MapMethods("/api/locations", new[] { "OPTIONS" }, () => Results.Ok());
 
 app.MapPost("/api/locations", ([FromBody] LocationBatch request, TextStorageService storage) =>
 {
@@ -63,6 +77,7 @@ app.MapPost("/api/locations", ([FromBody] LocationBatch request, TextStorageServ
 .WithName("PostLocations")
 .Produces(200)
 .Produces(400);
+app.MapMethods("/api/locations", new[] { "OPTIONS" }, () => Results.Ok());
 
 app.MapGet("/api/logs/today", (TextStorageService storage) =>
 {
