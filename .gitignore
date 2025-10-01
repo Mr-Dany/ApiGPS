@@ -18,6 +18,12 @@ bld/
 # Rider files
 .idea/
 
+# Visual Studio Code files
+.vs/
+
+# Rider specific
+.cr/
+
 # Docker
 .dockerignore
 
