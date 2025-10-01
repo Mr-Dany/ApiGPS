@@ -1,0 +1,9 @@
+bin/
+obj/
+.vscode/
+.idea/
+*.user
+*.suo
+*.swp
+*.DS_Store
+App_Data/*.log
