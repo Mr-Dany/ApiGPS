@@ -1,5 +1,6 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 using LocationIngestor.Models;
 using LocationIngestor.Services;
 
@@ -30,10 +31,8 @@ builder.Services.AddCors(options =>
             .SetPreflightMaxAge(TimeSpan.FromHours(1)));
 });
 
-
 var app = builder.Build();
 app.UseCors("AllowAll");
-
 
 app.UseSwagger();
 app.UseSwaggerUI();
@@ -77,7 +76,6 @@ app.MapPost("/api/locations", ([FromBody] LocationBatch request, TextStorageServ
 .WithName("PostLocations")
 .Produces(200)
 .Produces(400);
-app.MapMethods("/api/locations", new[] { "OPTIONS" }, () => Results.Ok());
 
 app.MapGet("/api/logs/today", (TextStorageService storage) =>
 {
@@ -197,9 +195,6 @@ namespace LocationIngestor.Models
 
 namespace LocationIngestor.Services
 {
-    using System.Text.Json;
-    using LocationIngestor.Models;
-
     public class TextStorageService
     {
         private readonly string _baseDir;
@@ -230,7 +225,7 @@ namespace LocationIngestor.Services
                 received_at_utc = DateTime.UtcNow.ToString("o")
             };
 
-            var jsonLine = System.Text.Json.JsonSerializer.Serialize(lineObj);
+            var jsonLine = JsonSerializer.Serialize(lineObj);
             File.AppendAllText(filePath, jsonLine + Environment.NewLine);
         }
 
